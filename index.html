@@ -31,12 +31,12 @@ const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamp
 let model, baseCamera, auto=false;
 new FBXLoader().load('./assets/aircraft-v2.fbx',obj=>{model=obj;
 const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
-model.position.sub(center);model.updateMatrixWorld(true);
+model.position.sub(center);model.updateMatrixWorld(true);let wingDebug={dark:0,faces:0};
 model.traverse(n=>{if(!n.isMesh)return;n.castShadow=true;n.receiveShadow=true;
 const geometry=n.geometry,position=geometry.getAttribute('position'),index=geometry.getIndex();
 const sourceMaterials=Array.isArray(n.material)?n.material:[n.material],materials=sourceMaterials.slice();
 const darkSlots=new Set();sourceMaterials.forEach((m,i)=>{if(m&&((m.name||'').toLowerCase().includes('color_009')||(m.color&&Math.max(m.color.r,m.color.g,m.color.b)<.04)))darkSlots.add(i);});
-if(darkSlots.size){
+if(darkSlots.size){wingDebug.dark+=darkSlots.size;
 const groups=geometry.groups.length?geometry.groups:[{start:0,count:index?index.count:position.count,materialIndex:0}],newGroups=[];
 const graySlot=materials.length,grayMaterial=(sourceMaterials[[...darkSlots][0]]||sourceMaterials[0]).clone();grayMaterial.color.setHex(0xb8bdc0);grayMaterial.map=null;grayMaterial.vertexColors=false;grayMaterial.side=THREE.DoubleSide;grayMaterial.needsUpdate=true;materials.push(grayMaterial);
 let grayFaces=0;
@@ -51,7 +51,7 @@ if(targetMat!==runMat){newGroups.push({start:runStart,count:k-runStart,materialI
 if(end>runStart)newGroups.push({start:runStart,count:end-runStart,materialIndex:runMat});
 }
 geometry.clearGroups();newGroups.forEach(g=>geometry.addGroup(g.start,g.count,g.materialIndex));n.material=materials;
-console.info('Recolored wing faces:',grayFaces);
+wingDebug.faces+=grayFaces;document.title='WING DEBUG '+wingDebug.dark+'/'+wingDebug.faces;
 }else n.material=sourceMaterials.length>1?sourceMaterials:sourceMaterials[0];
 });
 
