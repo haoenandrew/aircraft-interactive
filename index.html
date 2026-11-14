@@ -36,7 +36,7 @@ model.traverse(n=>{if(!n.isMesh)return;n.castShadow=true;n.receiveShadow=true;
 const bounds=new THREE.Box3().setFromObject(n).getSize(new THREE.Vector3()),dims=[bounds.x,bounds.y,bounds.z].sort((a,b)=>a-b);
 const mainWingMesh=(n.name.includes('#2_001')||n.name.includes('#3_001'))&&dims[1]>max*.25&&dims[0]>max*.07&&dims[1]/Math.max(dims[0],1e-6)>3.2;
 const materials=Array.isArray(n.material)?n.material:[n.material];
-n.material=materials.map(m=>{if(!m)return m;m.side=THREE.DoubleSide;if(!mainWingMesh||(m.name||'').toLowerCase()!=='color_008')return m;const gray=m.clone();gray.color.setHex(0xb8bdc0);gray.map=null;gray.vertexColors=false;gray.needsUpdate=true;return gray;});
+n.material=materials.map(m=>{if(!m)return m;m.side=THREE.DoubleSide;if(!mainWingMesh||!['color_008','steve_edges'].includes((m.name||'').toLowerCase()))return m;const gray=m.clone();gray.color.setHex(0xb8bdc0);gray.map=null;gray.vertexColors=false;gray.needsUpdate=true;return gray;});
 });
 model.scale.setScalar(8/max);model.position.y=-.25;scene.add(model);
 const distance=Math.max(3,max*.28);camera.position.set(distance*.8,distance*.45,distance);camera.zoom=1.35;camera.updateProjectionMatrix();controls.target.set(0,0,0);controls.update();baseCamera={pos:camera.position.clone(),target:controls.target.clone()};bar.style.width='100%';msg.textContent='模型載入完成';setTimeout(()=>loaderEl.classList.add('hide'),350);},xhr=>{if(xhr.total)bar.style.width=Math.round(xhr.loaded/xhr.total*100)+'%';msg.textContent=xhr.total?'載入模型 '+Math.round(xhr.loaded/xhr.total*100)+'%':'正在載入模型…';},err=>{console.error(err);msg.innerHTML='<span class="error">模型載入失敗。請確認網路連線後重新整理頁面。</span>';});
