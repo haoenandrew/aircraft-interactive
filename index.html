@@ -51,7 +51,7 @@ if(targetMat!==runMat){newGroups.push({start:runStart,count:k-runStart,materialI
 if(end>runStart)newGroups.push({start:runStart,count:end-runStart,materialIndex:runMat});
 }
 geometry.clearGroups();newGroups.forEach(g=>geometry.addGroup(g.start,g.count,g.materialIndex));n.material=materials;
-wingDebug.faces+=grayFaces;if(grayFaces>0)wingDebug.targets.push(n.name+':'+grayFaces+'['+sourceMaterials.filter((_,i)=>darkSlots.has(i)).map(m=>m.name).join(',')+']');document.title='WING DEBUG '+wingDebug.dark+'/'+wingDebug.faces+' '+wingDebug.targets.join('|');
+wingDebug.faces+=grayFaces;if(grayFaces>0){const bb=new THREE.Box3().setFromObject(n).getSize(new THREE.Vector3());wingDebug.targets.push(n.name+':'+grayFaces+'['+sourceMaterials.map((m,i)=>darkSlots.has(i)?i+':'+m.name+':'+m.color.getHexString():'').filter(Boolean).join(',')+']'+bb.toArray().map(v=>v.toFixed(1)).join(','));}document.title='WING DEBUG '+size.toArray().map(v=>v.toFixed(1)).join(',')+' '+wingDebug.targets.filter(x=>x.includes('#2_001')||x.includes('#3_001')).join('|');
 }else n.material=sourceMaterials.length>1?sourceMaterials:sourceMaterials[0];
 });
 
