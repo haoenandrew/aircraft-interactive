@@ -31,7 +31,7 @@ const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamp
 let model, baseCamera, auto=false;
 new FBXLoader().load('./assets/aircraft-v2.fbx',obj=>{model=obj;
 const box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3()),center=box.getCenter(new THREE.Vector3()),max=Math.max(size.x,size.y,size.z)||1;
-model.position.sub(center);model.updateMatrixWorld(true);let wingDebug={dark:0,faces:0};
+model.position.sub(center);model.updateMatrixWorld(true);let wingDebug={dark:0,faces:0,targets:[]};
 model.traverse(n=>{if(!n.isMesh)return;n.castShadow=true;n.receiveShadow=true;
 const geometry=n.geometry,position=geometry.getAttribute('position'),index=geometry.getIndex();
 const sourceMaterials=Array.isArray(n.material)?n.material:[n.material],materials=sourceMaterials.slice();
@@ -51,7 +51,7 @@ if(targetMat!==runMat){newGroups.push({start:runStart,count:k-runStart,materialI
 if(end>runStart)newGroups.push({start:runStart,count:end-runStart,materialIndex:runMat});
 }
 geometry.clearGroups();newGroups.forEach(g=>geometry.addGroup(g.start,g.count,g.materialIndex));n.material=materials;
-wingDebug.faces+=grayFaces;document.title='WING DEBUG '+wingDebug.dark+'/'+wingDebug.faces;
+wingDebug.faces+=grayFaces;if(grayFaces>0)wingDebug.targets.push(n.name+':'+grayFaces+'['+sourceMaterials.filter((_,i)=>darkSlots.has(i)).map(m=>m.name).join(',')+']');document.title='WING DEBUG '+wingDebug.dark+'/'+wingDebug.faces+' '+wingDebug.targets.join('|');
 }else n.material=sourceMaterials.length>1?sourceMaterials:sourceMaterials[0];
 });
 
